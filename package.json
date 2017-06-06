@@ -1,0 +1,36 @@
+{
+  "name": "skb",
+  "version": "1.0.0",
+  "description": "simple small knowledge base rest api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dischain/skb.git"
+  },
+  "keywords": [
+    "rest",
+    "express",
+    "knowledge",
+    "base"
+  ],
+  "author": "dischain",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.15.0",
+    "compression": "^1.6.1",
+    "express": "^4.13.4",
+    "mongodb": "^2.2.24",
+    "mongoose": "^4.10.4",
+    "morgan": "^1.6.1",
+    "passport": "^0.3.2",
+    "winston": "^2.1.1"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dischain/skb/issues"
+  },
+  "homepage": "https://github.com/Dischain/skb#readme"
+}
