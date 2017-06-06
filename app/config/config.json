@@ -1,0 +1,9 @@
+{
+	"db": {
+		"username": "",
+		"password": "",
+		"host": "localhost",
+		"port": "27017",
+		"name": "kb_test1"
+	}
+}
