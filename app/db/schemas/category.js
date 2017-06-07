@@ -9,7 +9,7 @@ const CategorySchema = new Schema({
 
 	path: { type: String, required: true },
 
-	_parent: { type: Schema.Types.ObjectId, ref: 'CategorySchema', require: true },
+	_parent: { type: Schema.Types.ObjectId, ref: 'CategorySchema', required: true },
 	_children: [{ type: Schema.Types.ObjectId, ref: 'CategorySchema' }],
 	_articles: [{ type: Schema.Types.ObjectId, ref: 'ArticleSchema' }],
 
