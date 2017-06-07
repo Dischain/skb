@@ -25,6 +25,7 @@ exports.createByPath = function(catData) {
 			} else if (parent.childrenNames.indexOf(catData.name) != -1) {
 				throw new Error('Category with such a name already exists there');
 			} 
+
 			let category = new CategoryModel({
 				name: catData.name,
 				description: catData.description,
@@ -41,6 +42,13 @@ exports.createByPath = function(catData) {
 		})
 }
 
+/*
+ * Delete specified category and all it subcategories.
+ *
+ * @param {String} path
+ * @return {Promise}
+ * @public
+ */
 exports.deleteSubcategories = function(rootPath) {
 	let pathWithRemovedLastSlash = rootPath.slice(0, rootPath.length - 1);
 	let index = pathWithRemovedLastSlash.lastIndexOf('/');
@@ -76,6 +84,38 @@ exports.deleteSubcategories = function(rootPath) {
 					.then(() => CategoryModel.remove({ _id: category._id }))
 				})
 			}, Promise.resolve())
+		})
+}
+
+/*
+ * Get all categories and articles, nested to specified path
+ *
+ * @param {String} path
+ * @return {Promise}
+ * @public
+ */
+exports.getSubctategories = function(path) {
+	return CategoryModel.findOne({ path: path })
+		.populate('_children')
+		.populate('_articles')
+		.then((category) => {
+			let subcategories = { categoies: [], articles: [] };
+
+			subcategories.categoies = category._children.map((child) => {
+				return {
+					name: child.name,
+					path: child.path
+				};
+			});
+
+			subcategories.articles = category._articles.map((article) => {
+				return {
+					title: article.title,
+					body: article.body
+				};
+			});
+
+			return subcategories;
 		})
 }
 
