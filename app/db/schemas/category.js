@@ -1,8 +1,9 @@
 'use strict';
 
 const Mongoose = require('mongoose');
+const Schema = Mongoose.Schema;
 
-const CategorySchema = new Mongoose.Schema({
+const CategorySchema = new Schema({
 	name: { type: String, trim: true, required: true },
 	description: { type: String },
 
@@ -14,7 +15,7 @@ const CategorySchema = new Mongoose.Schema({
 
 	_usersMerged: [{ type: Schema.Types.ObjectId, ref: 'UserSchema' }],
 
-	childrenNames: [{ type: String }],
+	childrenNames: [{ type: String, default: [] }],
 	artilesTitles: [{ type: String }],
 
 	domainKnowledge: { type: String }
