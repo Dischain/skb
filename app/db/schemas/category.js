@@ -9,11 +9,11 @@ const CategorySchema = new Schema({
 
 	path: { type: String, required: true },
 
-	_parent: { type: Schema.Types.ObjectId, ref: 'CategorySchema', required: true },
-	_children: [{ type: Schema.Types.ObjectId, ref: 'CategorySchema' }],
-	_articles: [{ type: Schema.Types.ObjectId, ref: 'ArticleSchema' }],
+	_parent: { type: Schema.Types.ObjectId, ref: 'category' },
+	_children: [{ type: Schema.Types.ObjectId, ref: 'category' }],
+	_articles: [{ type: Schema.Types.ObjectId, ref: 'article' }],
 
-	_usersMerged: [{ type: Schema.Types.ObjectId, ref: 'UserSchema' }],
+	_usersMerged: [{ type: Schema.Types.ObjectId, ref: 'user' }],
 
 	childrenNames: [{ type: String, default: [] }],
 	artilesTitles: [{ type: String }],
@@ -21,6 +21,6 @@ const CategorySchema = new Schema({
 	domainKnowledge: { type: String }
 });
 
-var CategoryModel = Mongoose.model('category', CategorySchema);
+const CategoryModel = Mongoose.model('category', CategorySchema);
 
 module.exports = CategoryModel;
