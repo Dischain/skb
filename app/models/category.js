@@ -70,7 +70,7 @@ exports.deleteSubcategories = function(rootPath) {
 
 			parent._children = parent._children.filter(filterChildrenIds);
 			parent.childrenNames = parent.childrenNames.filter(filterChildrenNames);
-			return /*Promise.resolve()*/parent.save(); //am i need to save it explicitly?
+			return parent.save();
 		})
 		.then(() => CategoryModel.find({ path: { $regex: '\^' + rootPath } }) )
 		.then((categories) => {
@@ -116,6 +116,20 @@ exports.getSubctategories = function(path) {
 			});
 
 			return subcategories;
+		})
+}
+
+exports.renameCategory = function(path, name) {
+	return CategoryModel.findOne({ path: path })
+		.populate('_parent')
+		.populate('_articles')
+		.then((category) => {
+			// Find index of renamemable category from it parent children array
+			// and rename it
+			let index = category._parent.childrenNames.indexOf(category.name);
+			category._parent.childrenNames[index] = name;
+
+			return category._parent.save();
 		})
 }
 
