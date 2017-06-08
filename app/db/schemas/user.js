@@ -14,7 +14,7 @@ const UserSchema = new Schema({
     password: { type: String, required: true },
     socialId: { type: String, default: null },
     avatar:  { type: String, default:  DEFAULT_AVATAR},
-    _root: { type: Schema.Types.ObjectId, ref: 'CategorySchema', required: true }
+    _root: { type: Schema.Types.ObjectId, ref: 'category', required: true }
 });
 
 UserSchema.pre('save', function(next) {
