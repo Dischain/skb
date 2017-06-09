@@ -119,18 +119,115 @@ exports.getSubctategories = function(path) {
 		})
 }
 
-exports.renameCategory = function(path, name) {
+/*exports.renameCategory = function(path, newName) {
+	let newPath = exports.replaceNameAtPath(path, newName);
 	return CategoryModel.findOne({ path: path })
 		.populate('_parent')
-		.populate('_articles')
 		.then((category) => {
-			// Find index of renamemable category from it parent children array
-			// and rename it
 			let index = category._parent.childrenNames.indexOf(category.name);
-			category._parent.childrenNames[index] = name;
+			category._parent.childrenNames[index] = newName;
 
-			return category._parent.save();
+			category.name = newName;
+			category.path = newPath;
+			
+			return category.save()
+				.then(() => { console.log('saving parent'); category._parent.save(); }) 
+				.then(() => exports.fixPathToChildren(path, newPath));
+		});
+}*/
+
+// Note: you can not rename root category, `cause you can`t change usernam
+exports.renameCategory = function(path, newName) {
+	let newPath = exports.replaceNameAtPath(path, newName);
+	let parentPath, oldName;
+	return CategoryModel.findOne({ path: path })
+		.populate('_parent')
+		.then((category) => {
+			oldName = category.name;
+			parentPath = category._parent.path;
+
+			category.name = newName;
+			category.path = newPath;
+			console.log('saving initial category with new name and path ...')
+			return category.save()
 		})
+		.then(() => { 
+			console.log('\nstarts working wit parent')
+			return CategoryModel.findOne({ path: parentPath })
+		})
+		//.populate('childrenNames')
+		.then((parent) => {
+			let index = parent.childrenNames.indexOf(oldName);
+			parent.childrenNames[index] = newName;
+			console.log('parent childName: '); console.log(parent.childrenNames); console.log('')
+			//console.log('full parent: '); console.log(parent);
+			return parent.save();
+			//return CategoryModel.update({ _id: parent._id }, { })
+		})
+		.then(() => {
+			console.log('replacing old name: ' + path);
+			console.log('with path: ' + newPath);
+			return exports.fixPathToChildren(path, newPath);
+		})
+}
+
+/*
+ * Repalaces path to specified category with new source
+ *
+ * Example:
+ *	if oldPath to /mongo/ is 'user1/programming/databases/mongo'
+ *  end newPath is 'user2/cs/db/mongo' then the new path to it and all subcategories 
+ *  should be 'user2/cs/db/mongo'
+ *
+ * @private
+ */
+exports.fixPathToChildren = function(oldPath, newPath) {
+	console.log('starting to fix pathes')
+	return CategoryModel.find({ path: { $regex: '\^' + oldPath } })
+		.then((categories) => {
+			/*console.log('all cats:'); console.log(categories)
+			return categories.reduce((initial, category) => {
+				console.log('category path: ' + category.path)
+				console.log('old path: ' + oldPath);
+				console.log('new path: ' + newPath);
+				category.path.replace(new RegExp('^' + oldPath), newPath);
+				return initial.then(() =>  { 
+					console.log('fixing path, new obj is:') 
+					console.log(category)
+					category.save(); 
+				});
+			}, Promise.resolve());*/
+			let promises = categories.map((category) => {
+				console.log('category path: ' + category.path)
+				console.log('old path: ' + oldPath);
+				console.log('new path: ' + newPath);
+				console.log('new path: ' + newPath);
+				category.path = category.path.replace(new RegExp('^' + oldPath), newPath);
+				console.log('new category path: ');
+				console.log(category.path)
+				console.log('fixing path, new obj is:') 
+				console.log(category)
+				return category.save(); 
+			});
+			return Promise.all(promises);
+		});
+}
+
+/*
+ * Replaces the current name of category in the path to it with new name
+ *
+ * Example:
+ *	if path to category is 'path/category/oldname/'
+ *	end new name of category is 'some_new_name'
+ *	then it returns 'path/category/some_new_name/'
+ */
+exports.replaceNameAtPath = function(path, name) {
+	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+	let index = pathWithRemovedLastSlash.lastIndexOf('/');
+
+	let newPath = pathWithRemovedLastSlash.slice(0, index + 1) + name + '/';
+
+	return newPath;
 }
 
 exports.findAll = function() {
