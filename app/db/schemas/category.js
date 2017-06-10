@@ -16,7 +16,7 @@ const CategorySchema = new Schema({
 	_usersMerged: [{ type: Schema.Types.ObjectId, ref: 'user' }],
 
 	childrenNames: [{ type: String, default: [] }],
-	artilesTitles: [{ type: String }],
+	articlesNames: [{ type: String, default: [] }],
 
 	domainKnowledge: { type: String }
 });
