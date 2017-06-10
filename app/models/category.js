@@ -136,7 +136,7 @@ exports.getSubctategories = function(path) {
 		});
 }*/
 
-// Note: you can not rename root category, `cause you can`t change usernam
+// Note: you can not rename root category, `cause you can`t change username
 exports.renameCategory = function(path, newName) {
 	let newPath = exports.replaceNameAtPath(path, newName);
 	let parentPath, oldName;
@@ -148,27 +148,31 @@ exports.renameCategory = function(path, newName) {
 
 			category.name = newName;
 			category.path = newPath;
-			console.log('saving initial category with new name and path ...')
 			return category.save()
 		})
 		.then(() => { 
-			console.log('\nstarts working wit parent')
 			return CategoryModel.findOne({ path: parentPath })
 		})
-		//.populate('childrenNames')
 		.then((parent) => {
 			let index = parent.childrenNames.indexOf(oldName);
-			parent.childrenNames[index] = newName;
-			console.log('parent childName: '); console.log(parent.childrenNames); console.log('')
-			//console.log('full parent: '); console.log(parent);
+			parent.childrenNames = parent.childrenNames.map((item, i) => {
+				if (i === index)
+					item = newName;
+				return item;
+			})
 			return parent.save();
-			//return CategoryModel.update({ _id: parent._id }, { })
 		})
 		.then(() => {
-			console.log('replacing old name: ' + path);
-			console.log('with path: ' + newPath);
 			return exports.fixPathToChildren(path, newPath);
 		})
+}
+
+/*
+ * Attach all subcategories and articles to specified folder.
+ * This method not uses recursion
+ */
+exports.attachCategory = function(from, to) {
+
 }
 
 /*
@@ -182,31 +186,10 @@ exports.renameCategory = function(path, newName) {
  * @private
  */
 exports.fixPathToChildren = function(oldPath, newPath) {
-	console.log('starting to fix pathes')
 	return CategoryModel.find({ path: { $regex: '\^' + oldPath } })
 		.then((categories) => {
-			/*console.log('all cats:'); console.log(categories)
-			return categories.reduce((initial, category) => {
-				console.log('category path: ' + category.path)
-				console.log('old path: ' + oldPath);
-				console.log('new path: ' + newPath);
-				category.path.replace(new RegExp('^' + oldPath), newPath);
-				return initial.then(() =>  { 
-					console.log('fixing path, new obj is:') 
-					console.log(category)
-					category.save(); 
-				});
-			}, Promise.resolve());*/
 			let promises = categories.map((category) => {
-				console.log('category path: ' + category.path)
-				console.log('old path: ' + oldPath);
-				console.log('new path: ' + newPath);
-				console.log('new path: ' + newPath);
 				category.path = category.path.replace(new RegExp('^' + oldPath), newPath);
-				console.log('new category path: ');
-				console.log(category.path)
-				console.log('fixing path, new obj is:') 
-				console.log(category)
 				return category.save(); 
 			});
 			return Promise.all(promises);
