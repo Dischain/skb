@@ -162,14 +162,13 @@ exports.renameCategory = function(path, newName) {
 exports.attachCategory = function(from, to) {
 	let pathToReplace = exports.getParentPath(from);
 	let attachableCategoryName = exports.getCategoryNameByPath(from);
-	console.log(attachableCategoryName)
 	return exports.createByPath({ name: attachableCategoryName, path: to })
 		.then(() => {
 			return exports.getSubctategories(from)
 				.then((subcategories) => {
 					let subcategories_copy = subcategories.categories.map((category) => {
 						category.path = to + attachableCategoryName + '/';
-						return exports.createByPath(to, category);
+						return exports.createByPath(category);
 					});
 
 					let articles_copy = subcategories.articles.map((article) => {
