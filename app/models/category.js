@@ -24,6 +24,9 @@ exports.createByPath = function(catData) {
 			if (!parent) {
 				throw new Error('Incorrect path');
 			} else if (parent.childrenNames.indexOf(catData.name) != -1) {
+				console.log('parent path: ' + parent.path);
+				console.log(parent.childrenNames)
+				console.log('creatable cat name: ' + catData.name);
 				throw new Error('Category with such a name already exists there');
 			} 
 
@@ -180,6 +183,53 @@ exports.attachCategory = function(from, to) {
 						.then(() => Promise.all(articles_copy));
 				});
 		});
+}
+
+exports.attachCategoryRecursively = function(from, to) {
+	console.log('from: ' + from);
+	console.log('to: ' + to);
+	let pathToReplace = exports.getParentPath(from);
+	let attachableCategoryName = exports.getCategoryNameByPath(from);
+	return exports.createByPath({ name: attachableCategoryName, path: to })
+		.then(() => { 
+			return CategoryModel.findOne({ path: from })
+				.populate('_children')
+				.then((category) => {
+					let subcategories_copy = category._children.map((category) => {
+						category.path = to + attachableCategoryName + '/';
+						category._children = []; 
+						category._articles = []; 
+						category.childrenNames = [];
+						return exports.createByPath(category).then(() => {
+							console.log('');
+							console.log('recursive call: ');
+							//console.log('from: ' + category.path + ' to: ' + to + category.name + '/');
+							console.log('');
+							return exports.attachCategoryRecursively( from + category.name + '/', category.path /*+ category.name + '/'*/);
+						});
+					});
+
+					return Promise.all(subcategories_copy);
+				})
+		})
+		.then(() => {
+			return exports.getSubctategories(from)
+				.then((subcategories) => {
+					/*let subcategories_copy = subcategories.categories.map((category) => {
+						category.path = to + attachableCategoryName + '/';
+						return exports.createByPath(category);
+					});*/
+
+					let articles_copy = subcategories.articles.map((article) => {
+						article.path = to + attachableCategoryName + '/';
+						return articles.createByPath(article);
+					});
+
+					/*return Promise.all(subcategories_copy)
+						.then(() => Promise.all(articles_copy));*/
+					return Promise.all(articles_copy);
+				});
+		})
 }
 
 /*
