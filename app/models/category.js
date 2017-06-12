@@ -19,12 +19,14 @@ const articles = require('./article.js');
  * @public
  */
 exports.createByPath = function(catData) {
+	console.log('in createByPath, path to create ' + catData.name  +' is: ' + catData.path);
 	return CategoryModel.findOne( {path: catData.path })
 		.then((parent) => {
 			if (!parent) {
 				throw new Error('Incorrect path');
 			} else if (parent.childrenNames.indexOf(catData.name) != -1) {
 				console.log('parent path: ' + parent.path);
+				console.log('parent childrenNames: ')
 				console.log(parent.childrenNames)
 				console.log('creatable cat name: ' + catData.name);
 				throw new Error('Category with such a name already exists there');
@@ -38,7 +40,7 @@ exports.createByPath = function(catData) {
 
 				_parent: parent._id,
 
-				childrenNames: catData.childrenNames,
+				//childrenNames: catData.childrenNames,
 				articleNames: catData.articleNames,				
 
 				domainKnowledge: catData.domainKnowledge
@@ -115,7 +117,8 @@ exports.getSubctategories = function(path) {
 			subcategories.articles = category._articles.map((article) => {
 				return {
 					name: article.name,
-					body: article.body
+					body: article.body,
+					tags: article.tags
 				};
 			});
 
@@ -186,6 +189,7 @@ exports.attachCategory = function(from, to) {
 }
 
 exports.attachCategoryRecursively = function(from, to) {
+	console.log('');
 	console.log('from: ' + from);
 	console.log('to: ' + to);
 	let pathToReplace = exports.getParentPath(from);
@@ -194,19 +198,30 @@ exports.attachCategoryRecursively = function(from, to) {
 		.then(() => { 
 			return CategoryModel.findOne({ path: from })
 				.populate('_children')
-				.then((category) => {
-					let subcategories_copy = category._children.map((category) => {
-						category.path = to + attachableCategoryName + '/';
+				.then((parent) => {
+					let subcategories_copy = parent._children.map((category) => {
+						/*let category_copy = {
+							path: to,
+							name: category.name,
+							_children: [],
+							_articles: [],
+							childrenNames: []
+						}*/
+						let oldPath = category.path;
+						category.path = to /*+ category.name + '/'*/ + attachableCategoryName + '/';
 						category._children = []; 
 						category._articles = []; 
 						category.childrenNames = [];
-						return exports.createByPath(category).then(() => {
-							console.log('');
-							console.log('recursive call: ');
-							//console.log('from: ' + category.path + ' to: ' + to + category.name + '/');
-							console.log('');
-							return exports.attachCategoryRecursively( from + category.name + '/', category.path /*+ category.name + '/'*/);
-						});
+						console.log('attaching, category path: ' + category.path);
+						console.log('attaching, category name: ' + category.name);
+						//return exports.createByPath(/*category_copy*/category).then(() => {
+						//	console.log('');
+						//	console.log('recursive call: ');
+						//	return exports.attachCategoryRecursively(from + category.name + '/',
+						//		category.path/* + category.name + '/'*/);
+						//});
+						return exports.attachCategoryRecursively(from + category.name + '/',
+								category.path/* + category.name + '/'*/);
 					});
 
 					return Promise.all(subcategories_copy);
@@ -221,6 +236,10 @@ exports.attachCategoryRecursively = function(from, to) {
 					});*/
 
 					let articles_copy = subcategories.articles.map((article) => {
+						console.log('');
+						console.log('copying article: ')
+						console.log(article);
+						console.log('');
 						article.path = to + attachableCategoryName + '/';
 						return articles.createByPath(article);
 					});
