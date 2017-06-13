@@ -3,6 +3,8 @@
 const CategoryModel = require('../db').models.CategoryModel;
 const ArticleModel = require('../db').models.ArticleModel;
 
+const util = require('../util');
+
 /*
  * Create an article by specified path to parent category
  * and links `em together. 
@@ -26,11 +28,7 @@ exports.createByPath = function(articleData) {
 				throw new Error('Incorrect path');
 			} else if (parent.articlesNames.indexOf(articleData.name) != -1) {
 				throw new Error('Category with such a name already exists there');
-			} 
-			console.log('');
-			console.log('articleData: ')
-			console.log(articleData)
-			console.log('')
+			}
 			let article = new ArticleModel({
 				name: articleData.name,
 				body: articleData.body,
@@ -44,6 +42,29 @@ exports.createByPath = function(articleData) {
 			parent._articles.push(article);
 			parent.articlesNames.push(article.name);
 			return article.save().then(() => parent.save());
+		});
+}
+
+exports.rename = function(path, newName) {
+	const parentPath = util.getCategoryParentPath(path);
+	const oldName = util.getArticleNameByPath(path);
+
+	return CategoryModel.findOne({ path: parentPath })
+		.then((parent) => {
+			let index = parent.articlesNames.indexOf(oldName);
+			parent.articlesNames = parent.articlesNames.map((articleName, i) => {
+				if (i === index)
+					articleName = newName;
+				return articleName;
+			});
+
+			return parent.save();
+		})
+		.then(() => ArticleModel.findOne({ path: path }) )
+		.then((article) => {
+			article.path = util.replaceArticleNameAtPath(article.path, newName);
+			article.name = newName;
+			return article.save();
 		});
 }
 
