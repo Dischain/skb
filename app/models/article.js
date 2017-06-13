@@ -45,6 +45,23 @@ exports.createByPath = function(articleData) {
 		});
 }
 
+exports.delete = function(path) {
+	const parentPath = util.getCategoryParentPath(path);
+	const articleName = util.getArticleNameByPath(path);
+
+	return CategoryModel.findOne({ path: parentPath })
+		.then((parent) => {
+			let index = parent.articlesNames.indexOf(articleName);
+			let filterArticles = function(articleName, i) { return i != index; };
+			
+			parent.articlesNames = parent.articlesNames.filter(filterArticles);
+			parent._articles = parent._articles.filter(filterArticles);
+
+			return parent.save();
+		})
+		.then(() => ArticleModel.remove({ path: path }) )
+}
+
 exports.rename = function(path, newName) {
 	const parentPath = util.getCategoryParentPath(path);
 	const oldName = util.getArticleNameByPath(path);
