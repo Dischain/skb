@@ -4,6 +4,8 @@ const CategoryModel = require('../db').models.CategoryModel;
 const ArticleModel = require('../db').models.ArticleModel;
 const articles = require('./article.js');
 
+const util = require('../util');
+
 /*
  * Create a category by specified path to parent category
  * and links `em together.
@@ -19,16 +21,13 @@ const articles = require('./article.js');
  * @public
  */
 exports.createByPath = function(catData) {
-	console.log('in createByPath, path to create ' + catData.name  +' is: ' + catData.path);
+	if (catData.name.indexOf('/') != -1)
+		throw new new Error('Category name can not contain "/"');
 	return CategoryModel.findOne( {path: catData.path })
 		.then((parent) => {
 			if (!parent) {
 				throw new Error('Incorrect path');
 			} else if (parent.childrenNames.indexOf(catData.name) != -1) {
-				console.log('parent path: ' + parent.path);
-				console.log('parent childrenNames: ')
-				console.log(parent.childrenNames)
-				console.log('creatable cat name: ' + catData.name);
 				throw new Error('Category with such a name already exists there');
 			} 
 
@@ -59,8 +58,8 @@ exports.createByPath = function(catData) {
  * @public
  */
 exports.deleteCategory = function(rootPath) {
-	let categoryName = exports.getCategoryNameByPath(rootPath);
-	let parentpath = exports.getParentPath(rootPath);
+	let categoryName = util.getCategoryNameByPath(rootPath);
+	let parentpath = util.getCategoryParentPath(rootPath);
 
 	return CategoryModel.findOne({ path: parentpath })
 		.populate('_children')
@@ -128,7 +127,7 @@ exports.getSubctategories = function(path) {
 
 // Note: you can not rename root category, `cause you can`t change username.
 exports.renameCategory = function(path, newName) {
-	let newPath = exports.replaceNameAtPath(path, newName);
+	let newPath = util.replaceCategoryNameAtPath(path, newName);
 	let parentPath, oldName;
 	return CategoryModel.findOne({ path: path })
 		.populate('_parent')
@@ -166,8 +165,8 @@ exports.renameCategory = function(path, newName) {
  * 	should create new category with path 'u2/cs/db/redis/'
  */
 exports.attachCategory = function(from, to) {
-	let pathToReplace = exports.getParentPath(from);
-	let attachableCategoryName = exports.getCategoryNameByPath(from);
+	let pathToReplace = util.getCategoryParentPath(from);
+	let attachableCategoryName = util.getCategoryNameByPath(from);
 	return exports.createByPath({ name: attachableCategoryName, path: to })
 		.then(() => {
 			return exports.getSubctategories(from)
@@ -189,39 +188,23 @@ exports.attachCategory = function(from, to) {
 }
 
 exports.attachCategoryRecursively = function(from, to) {
-	console.log('');
-	console.log('from: ' + from);
-	console.log('to: ' + to);
-	let pathToReplace = exports.getParentPath(from);
-	let attachableCategoryName = exports.getCategoryNameByPath(from);
+	let pathToReplace = util.getCategoryParentPath(from);
+	let attachableCategoryName = util.getCategoryNameByPath(from);
+
 	return exports.createByPath({ name: attachableCategoryName, path: to })
 		.then(() => { 
 			return CategoryModel.findOne({ path: from })
 				.populate('_children')
 				.then((parent) => {
 					let subcategories_copy = parent._children.map((category) => {
-						/*let category_copy = {
-							path: to,
-							name: category.name,
-							_children: [],
-							_articles: [],
-							childrenNames: []
-						}*/
 						let oldPath = category.path;
-						category.path = to /*+ category.name + '/'*/ + attachableCategoryName + '/';
+						category.path = to + attachableCategoryName + '/';
 						category._children = []; 
 						category._articles = []; 
 						category.childrenNames = [];
-						console.log('attaching, category path: ' + category.path);
-						console.log('attaching, category name: ' + category.name);
-						//return exports.createByPath(/*category_copy*/category).then(() => {
-						//	console.log('');
-						//	console.log('recursive call: ');
-						//	return exports.attachCategoryRecursively(from + category.name + '/',
-						//		category.path/* + category.name + '/'*/);
-						//});
+						
 						return exports.attachCategoryRecursively(from + category.name + '/',
-								category.path/* + category.name + '/'*/);
+								category.path);
 					});
 
 					return Promise.all(subcategories_copy);
@@ -230,22 +213,11 @@ exports.attachCategoryRecursively = function(from, to) {
 		.then(() => {
 			return exports.getSubctategories(from)
 				.then((subcategories) => {
-					/*let subcategories_copy = subcategories.categories.map((category) => {
-						category.path = to + attachableCategoryName + '/';
-						return exports.createByPath(category);
-					});*/
-
 					let articles_copy = subcategories.articles.map((article) => {
-						console.log('');
-						console.log('copying article: ')
-						console.log(article);
-						console.log('');
 						article.path = to + attachableCategoryName + '/';
 						return articles.createByPath(article);
 					});
 
-					/*return Promise.all(subcategories_copy)
-						.then(() => Promise.all(articles_copy));*/
 					return Promise.all(articles_copy);
 				});
 		})
@@ -278,45 +250,6 @@ exports.fixPathToChildren = function(oldPath, newPath) {
 			});
 			return Promise.all(articlePromises);
 		})
-}
-
-/*
- * Replaces the current name of category in the path to it with new name
- *
- * Example:
- *	if path to category is 'path/category/oldname/'
- *	end new name of category is 'some_new_name'
- *	then it returns 'path/category/some_new_name/'
- */
-exports.replaceNameAtPath = function(path, name) {
-	let newPath = exports.getParentPath(path) + name + '/';
-
-	return newPath;
-}
-
-/*
- * Returns path which should be replaced in oreder to remove category
- *
- * Example:
- *	path = 'user1/programming/databases/mongodb/'
- *  getPathToReplace(path) // -> outputs 'user1/programming/databases/''
- */
-exports.getParentPath = function(path) {
-	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
-	let index = pathWithRemovedLastSlash.lastIndexOf('/');
-
-	let parentPath = pathWithRemovedLastSlash.slice(0, index + 1);
-
-	return parentPath;
-}
-
-exports.getCategoryNameByPath = function(path) {
-	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
-	let index = pathWithRemovedLastSlash.lastIndexOf('/');
-
-	let categoryName = pathWithRemovedLastSlash.slice(index + 1);
-
-	return categoryName;
 }
 
 exports.findAll = function() {
