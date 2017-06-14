@@ -85,6 +85,26 @@ exports.rename = function(path, newName) {
 		});
 }
 
+exports.updateBody = function(path, body) {
+	return ArticleModel.findOne({ path: path })
+		.then((article) => {
+			article.body = body;
+			
+			return article.save();
+		});
+}
+
+exports.removeTag = function(path, removebleTag) {
+	return ArticleModel.findOne({ path: path })
+		.then((article) => {
+			article.tags = article.tags.filter((tag) => {
+				return tag != removebleTag;
+			});
+
+			return article.save();
+		});
+}
+
 exports.findAll = function() {
 	return ArticleModel.find({});
 }
