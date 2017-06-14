@@ -12,6 +12,8 @@ const ArticleSchema = new Schema({
 	tags: [{ type: String }],
 
 	_parent: { type: Schema.Types.ObjectId, ref: 'category', required: true }
+
+	_usersMerged: [{ type: Schema.Types.ObjectId, ref: 'user' }],
 });
 
 const  ArticleModel = Mongoose.model('article', ArticleSchema);

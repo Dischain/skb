@@ -13,8 +13,6 @@ const CategorySchema = new Schema({
 	_children: [{ type: Schema.Types.ObjectId, ref: 'category' }],
 	_articles: [{ type: Schema.Types.ObjectId, ref: 'article' }],
 
-	_usersMerged: [{ type: Schema.Types.ObjectId, ref: 'user' }],
-
 	childrenNames: [{ type: String, default: [] }],
 	articlesNames: [{ type: String, default: [] }],
 
