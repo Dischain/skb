@@ -105,6 +105,24 @@ exports.removeTag = function(path, removebleTag) {
 		});
 }
 
+exports.addTag = function(path, newTag) {
+	return ArticleModel.findOne({ path: path })
+		.then((article) => {
+			article.tags.push(newTag);
+
+			return article.save();
+		})
+}
+
+exports.attachArticle = function(articlePath, to) {
+	return ArticleModel.findOne({ path: articlePath })
+		.then((article) => {
+			article.path = to;
+
+			return exports.createByPath(article);
+		})
+}
+
 exports.findAll = function() {
 	return ArticleModel.find({});
 }
