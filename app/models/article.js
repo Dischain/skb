@@ -24,8 +24,6 @@ const util = require('../util');
  */
 exports.createByPath = function(articleData) {
 	let ownerName = util.getOwnerName(articleData.path);
-	console.log(articleData.path)
-	console.log(ownerName)
 	return UserModel.findOne({ username: ownerName })
 		.then((user) => {
 			if(!articleData._createdBy) {
@@ -134,6 +132,27 @@ exports.attachArticle = function(articlePath, to) {
 
 			return exports.createByPath(article);
 		})
+}
+
+exports.updateAttachedArticles = function(from, to) {
+	let newOwnerName = util.getOwnerName(to);
+	let newOwner;
+
+	return UserModel.findOne({ username: newOwnerName })
+		.then((user) => { newOwner = user; })
+		.then(() => CategoryModel.getSubcategories(from))
+		.then((subcategories) => {
+			let initialArticles subcategories.articles.map((article) => {
+				return ArticleModel.findOne({ path: article.path })
+					.then((initialArticle) => {
+						initialArticle._atachedBy.push(newOwner)
+
+						return initialArticle.save();
+					});
+			});
+
+			return Promise.all(initialArticles);
+		});
 }
 
 exports.findAll = function() {
