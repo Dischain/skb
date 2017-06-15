@@ -27,7 +27,7 @@ exports.createByPath = function(articleData) {
 			if (!parent) {
 				throw new Error('Incorrect path');
 			} else if (parent.articlesNames.indexOf(articleData.name) != -1) {
-				throw new Error('Category with such a name already exists there');
+				throw new Error('Article with such a name already exists there');
 			}
 			let article = new ArticleModel({
 				name: articleData.name,
