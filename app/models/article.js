@@ -2,6 +2,7 @@
 
 const CategoryModel = require('../db').models.CategoryModel;
 const ArticleModel = require('../db').models.ArticleModel;
+const UserModel = require('../db').models.UserModel;
 
 const util = require('../util');
 
@@ -22,26 +23,38 @@ const util = require('../util');
  * @public
  */
 exports.createByPath = function(articleData) {
-	return CategoryModel.findOne( {path: articleData.path })
-		.then((parent) => {
-			if (!parent) {
-				throw new Error('Incorrect path');
-			} else if (parent.articlesNames.indexOf(articleData.name) != -1) {
-				throw new Error('Article with such a name already exists there');
+	let ownerName = util.getOwnerName(articleData.path);
+	console.log(articleData.path)
+	console.log(ownerName)
+	return UserModel.findOne({ username: ownerName })
+		.then((user) => {
+			if(!articleData._createdBy) {
+				articleData._createdBy = user._id;
 			}
-			let article = new ArticleModel({
-				name: articleData.name,
-				body: articleData.body,
 
-				path: parent.path + articleData.name,
+			return Promise.resolve();
+		})
+		.then(() => {
+			return CategoryModel.findOne( {path: articleData.path })
+				.then((parent) => {
+					if (!parent) {
+						throw new Error('Incorrect path');
+					} else if (parent.articlesNames.indexOf(articleData.name) != -1) {
+						throw new Error('Article with such a name already exists there');
+					}
+					let article = new ArticleModel({
+						name: articleData.name,
+						body: articleData.body,
+						path: parent.path + articleData.name,
+						tags: articleData.tags,
 
-				tags: articleData.tags,
-
-				_parent: parent._id
-			});
-			parent._articles.push(article);
-			parent.articlesNames.push(article.name);
-			return article.save().then(() => parent.save());
+						_parent: parent._id,
+						_createdBy: articleData._createdBy
+					});
+					parent._articles.push(article);
+					parent.articlesNames.push(article.name);
+					return article.save().then(() => parent.save());
+				});
 		});
 }
 

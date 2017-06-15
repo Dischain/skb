@@ -77,3 +77,10 @@ exports.getArticleNameByPath = function(path) {
 
 	return articleName;
 }
+
+exports.getOwnerName = function(path) {
+	let index = path.indexOf('/');
+	let ownerName = path.slice(0, index);
+
+	return ownerName;
+}
