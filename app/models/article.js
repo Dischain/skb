@@ -4,6 +4,8 @@ const CategoryModel = require('../db').models.CategoryModel;
 const ArticleModel = require('../db').models.ArticleModel;
 const UserModel = require('../db').models.UserModel;
 
+const categories = require('./category.js');
+
 const util = require('../util');
 
 /*
@@ -132,26 +134,19 @@ exports.attachArticle = function(articlePath, to) {
 
 			return exports.createByPath(article);
 		})
+		.then(()=> exports.updateAttachedArticle(articlePath, to))
 }
 
-exports.updateAttachedArticles = function(from, to) {
+exports.updateAttachedArticle = function(from, to) {
 	let newOwnerName = util.getOwnerName(to);
 	let newOwner;
 
 	return UserModel.findOne({ username: newOwnerName })
 		.then((user) => { newOwner = user; })
-		.then(() => CategoryModel.getSubcategories(from))
-		.then((subcategories) => {
-			let initialArticles subcategories.articles.map((article) => {
-				return ArticleModel.findOne({ path: article.path })
-					.then((initialArticle) => {
-						initialArticle._atachedBy.push(newOwner)
-
-						return initialArticle.save();
-					});
-			});
-
-			return Promise.all(initialArticles);
+		.then(() => ArticleModel.findOne({ path: from }))
+		.then((initialArticle) => {
+			initialArticle._usersAttached.push(newOwner);
+			return initialArticle.save();
 		});
 }
 

@@ -117,7 +117,9 @@ exports.getSubcategories = function(path) {
 				return {
 					name: article.name,
 					body: article.body,
-					tags: article.tags
+					tags: article.tags,
+
+					ownerPath: article.path
 				};
 			});
 
@@ -214,8 +216,10 @@ exports.attachCategoryRecursively = function(from, to) {
 			return exports.getSubcategories(from)
 				.then((subcategories) => {
 					let articles_copy = subcategories.articles.map((article) => {
+						let ownerArticlePath = article.ownerPath;
 						article.path = to + attachableCategoryName + '/';
-						return articles.createByPath(article);
+						return articles.createByPath(article)
+							.then(() => articles.updateAttachedArticle(ownerArticlePath, to));
 					});
 
 					return Promise.all(articles_copy);
