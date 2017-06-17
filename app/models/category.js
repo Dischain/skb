@@ -99,7 +99,7 @@ exports.deleteCategory = function(rootPath) {
  * @return {Promise}
  * @public
  */
-exports.getSubctategories = function(path) {
+exports.getSubcategories = function(path) {
 	return CategoryModel.findOne({ path: path })
 		.populate('_children')
 		.populate('_articles')
@@ -169,7 +169,7 @@ exports.attachCategory = function(from, to) {
 	let attachableCategoryName = util.getCategoryNameByPath(from);
 	return exports.createByPath({ name: attachableCategoryName, path: to })
 		.then(() => {
-			return exports.getSubctategories(from)
+			return exports.getSubcategories(from)
 				.then((subcategories) => {
 					let subcategories_copy = subcategories.categories.map((category) => {
 						category.path = to + attachableCategoryName + '/';
@@ -211,7 +211,7 @@ exports.attachCategoryRecursively = function(from, to) {
 				})
 		})
 		.then(() => {
-			return exports.getSubctategories(from)
+			return exports.getSubcategories(from)
 				.then((subcategories) => {
 					let articles_copy = subcategories.articles.map((article) => {
 						article.path = to + attachableCategoryName + '/';
