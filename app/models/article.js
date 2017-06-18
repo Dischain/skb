@@ -6,7 +6,7 @@ const UserModel = require('../db').models.UserModel;
 
 const categories = require('./category.js');
 
-const util = require('../util');
+const util = require('./util');
 
 /*
  * Create an article by specified path to parent category

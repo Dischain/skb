@@ -15,7 +15,7 @@ const CategoryModel = require('../db').models.CategoryModel;
  *		avatar: '...'
  *	}).then(() => { do_soeth(); });
  */
-exports.create = function(userData) {
+exports.create = function(userData, cb) {
 	let user = new UserModel(userData);
 	
 	let dafaultRootCategory = new CategoryModel({ 
@@ -26,7 +26,9 @@ exports.create = function(userData) {
 
 	user._root = dafaultRootCategory;
 
-	return user.save().then(() => dafaultRootCategory.save() );
+	return user.save()
+		.then(() => dafaultRootCategory.save() )
+		//.then(() => cb())
 }
 
 /*

@@ -4,7 +4,7 @@ const CategoryModel = require('../db').models.CategoryModel;
 const ArticleModel = require('../db').models.ArticleModel;
 const articles = require('./article.js');
 
-const util = require('../util');
+const util = require('./util');
 
 /*
  * Create a category by specified path to parent category
