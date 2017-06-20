@@ -11,10 +11,11 @@ const DEFAULT_AVATAR = '';
 const UserSchema = new Schema({
 	username: { type: String, unique: true, required: true, trim: true },
 	email: { type: String, unique: true, trim: true, required: true },
-    password: { type: String, required: true },
-    socialId: { type: String, default: null },
-    avatar:  { type: String, default:  DEFAULT_AVATAR},
-    _root: { type: Schema.Types.ObjectId, ref: 'category', required: true }
+  password: { type: String, required: true },
+  socialId: { type: String, default: null },
+  avatar:  { type: String, default:  DEFAULT_AVATAR},
+  
+  _root: { type: Schema.Types.ObjectId, ref: 'category', required: true }
 });
 
 UserSchema.pre('save', function(next) {
