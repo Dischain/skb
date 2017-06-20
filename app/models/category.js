@@ -228,6 +228,18 @@ exports.attachCategoryRecursively = function(from, to) {
 }
 
 /*
+ * Count total subcategories at specified category
+ */
+
+/*
+ * Count total articles num at category
+ */
+
+/*
+ * Count total articles attached at category
+ */
+
+/*
  * Repalaces path to specified category and article with new source
  *
  * Example:
