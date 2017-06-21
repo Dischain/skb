@@ -5,54 +5,58 @@ const router  = express.Router();
 
 const Categories = require('../models/category.js');
 
+const util = require('./rout_util.js');
+
 //TODO: Add status codes
 
 // Get subcategories
-router.get('/cat/:categorypath', (req, res) => {
-  Categories.getSubcategories(req.params.path)
+router.get(/cat/, (req, res) => {
+  console.log('get cat by path: ' + util.getPathToCategory(req))
+  Categories.getSubcategories(util.getPathToCategory(req))
     .then(subcategories => res.json(subcategories))
     .catch(error => {
-      res.status(412).json({msg: error.message});
+      res.status(404).json({msg: 'page not found'});
     });
 });
 
 // Create category
-router.post('/cat/:categorypath', (req, res) => {
-  let name = req.body.name;
-  let path = req.params.parentPath;
+router.post(/cat/, (req, res) => {
 
+  let name = req.body.name;
+  let path = util.getPathToCategory(req);
   Categories.createByPath({ name, path })
-    .then(() => res.status(/**/))
+    .then(() => { res.status(200); res.end(); })
     .catch((error) => {
 
     });
 });
 
 // Update category name
-router.put('/cat/:categorypath', (req, res) => {
-  let path = req.params.path;
+router.put(/cat/, (req, res) => {
   let newName = req.body.newName;
-
+  let path = util.getPathToCategory(req);
+  console.log('path: ' + path)
+  console.log('newname: ' + newName)
   Categories.renameCategory(path, newName)
-    .then(() => res.status(/**/))
+    .then(() => res.status(200))
     .catch((error) => {
-
+      res.json({ msg: error.message });
     });
 });
 
 // Delete category recursively
-router.delete('/cat/:categorypath', (req, res) => {
-  let path = req.params.path;
+router.delete(/cat/, (req, res) => {
+  let path = util.getPathToCategory(req);
 
-  Categories.deleteCategory(path, newName)
-    .then(() => res.status(/**/))
+  Categories.deleteCategory(path)
+    .then(() => res.status(200))
     .catch((error) => {
 
     });
 });
 
 // Attach category from path to another path
-router.put('/cat', (req, res) => {
+router.put('/cat/attach', (req, res) => {
   let from = req.body.from;
   let to = req.body.to;
 

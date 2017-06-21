@@ -43,3 +43,10 @@ function trimSpaces(str) {
 
   return convertedString;
  }
+
+ exports.getPathToCategory = function(req) {
+ 	let path = req.url.slice(5);
+ 	if (path.lastIndexOf('/') != path.length - 1)
+ 		path += '/'
+ 	return path;
+ }
