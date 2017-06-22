@@ -268,6 +268,25 @@ exports.fixPathToChildren = function(oldPath, newPath) {
 		})
 }
 
+exports.getSubcategoriesNum = function(path) {
+	return CategoryModel.find({ path: { $regex: '\^' + path } })
+		.then((categories) => categories.length);
+}
+
+exports.getArticlesAttachedNum = function(path) {
+	return ArticleModel.find({ path: { $regex: '\^' + path } })
+		.then((articles) => {
+			return articles.reduce((initial, article) => {
+				return initial += article._usersAttached.length;
+			}, 0);
+		});
+}
+
+exports.getArticlesNum = function(path) {
+	return ArticleModel.find({ path: { $regex: '/^' + path } })
+		.then((article) => articles.length);
+}
+
 exports.findAll = function() {
 	return CategoryModel.find({});
 }
