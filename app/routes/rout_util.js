@@ -10,20 +10,20 @@ const DIVISOR = '+'
  * reduceSpaces(str); // -> 'hello world'
  */
 function trimSpaces(str) {
-	let trimedStrig = '';
-	let temp = str.trim();
+  let trimedStrig = '';
+  let temp = str.trim();
 
-	for (let i = 0; i < temp.length; i++) {
-		if (temp[i] === SP) {
-			if (temp[i - 1] === SP && i > 0) {
-				continue;
-			} else {
-				trimedStrig += SP;
-			}
-		} else {
-			trimedStrig += temp[i];
-		}
-	}
+  for (let i = 0; i < temp.length; i++) {
+    if (temp[i] === SP) {
+      if (temp[i - 1] === SP && i > 0) {
+        continue;
+      } else {
+        trimedStrig += SP;
+      }
+    } else {
+      trimedStrig += temp[i];
+    }
+  }
 
   return trimedStrig;
 }
@@ -38,15 +38,15 @@ function trimSpaces(str) {
   let convertedString = '';
 
   for (let i = 0; i < str.length; i++) {
-    convertedString += str[i] === SP ? DIVISOR : str[i];
+  convertedString += str[i] === SP ? DIVISOR : str[i];
   }
 
   return convertedString;
  }
 
- exports.getPathToCategory = function(req) {
- 	let path = req.url.slice(5);
- 	if (path.lastIndexOf('/') != path.length - 1)
- 		path += '/'
- 	return path;
+ exports.getPathToCategory = function(str) {
+  let path = str.slice(5);
+  if (path.lastIndexOf('/') != path.length - 1)
+    path += '/'
+  return path;
  }
