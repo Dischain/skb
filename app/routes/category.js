@@ -11,9 +11,28 @@ const util = require('./rout_util.js');
 
 // Get subcategories
 router.get(/cat/, (req, res) => {
+  let path = util.getPathToCategory(req.url),
+      responseData = {};
+
   console.log('get cat by path: ' + util.getPathToCategory(req.url))
-  Categories.getSubcategories(util.getPathToCategory(req.url))
-    .then(subcategories => res.json(subcategories))
+  Categories.getSubcategories(path)
+    //.then(subcategories => res.json(subcategories))
+    .then((subcategories) => {
+      responseData.subcategories = subcategories;
+    })
+    .then(() => Categories.getSubcategoriesNum(path) )
+    .then((subcategoriesNum) => {
+      responseData.subcategoriesNum = subcategoriesNum;
+    })
+    .then(() => Categories.getArticlesAttachedNum(path) )
+    .then((articlesAttachedNum) => {
+      responseData.articlesAttachedNum = articlesAttachedNum;
+    })
+    .then(() => Categories.getArticlesNum(path) )
+    .then((articlesNum) => {
+      responseData.articlesNum = articlesNum;
+    })
+    .then(subcategories => res.json(responseData))
     .catch(error => {
       res.status(404).json({msg: 'page not found'});
     });
@@ -22,8 +41,9 @@ router.get(/cat/, (req, res) => {
 // Create category
 router.post(/cat/, (req, res) => {
 
-  let name = req.body.name;
+  let name = util.sanitizePath(req.body.name);
   let path = util.getPathToCategory(req.url);
+  console.log('path: ' + path);
   Categories.createByPath({ name, path })
     .then(() => { res.status(200); res.end(); })
     .catch((error) => {
@@ -33,7 +53,7 @@ router.post(/cat/, (req, res) => {
 
 // Update category name
 router.put(/cat/, (req, res) => {
-  let newName = req.body.newName;
+  let newName = util.sanitizePath(req.body.newName);
   let path = util.getPathToCategory(req.url);
   console.log('path: ' + path)
   console.log('newname: ' + newName)

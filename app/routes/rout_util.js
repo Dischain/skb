@@ -32,7 +32,7 @@ function trimSpaces(str) {
  * Convert spaces to specified divisor symbol
  *
  * Example: let str = 'hello world';
- * convertSpacesToDivisor(str); // -> 'hell+world'
+ * convertSpacesToDivisor(str); // -> 'hello+world'
  */
  function convertSpacesToDivisor(str) {
   let convertedString = '';
@@ -44,9 +44,21 @@ function trimSpaces(str) {
   return convertedString;
  }
 
- exports.getPathToCategory = function(str) {
+ function sanitizePath(str) {
+  let trimmed = trimSpaces(str);
+  let converted = convertSpacesToDivisor(trimmed);
+
+  return converted;
+ }
+
+ function getPathToCategory(str) {
   let path = str.slice(5);
   if (path.lastIndexOf('/') != path.length - 1)
     path += '/'
   return path;
+ }
+
+ module.exports = {
+  sanitizePath: sanitizePath,
+  getPathToCategory: getPathToCategory
  }
