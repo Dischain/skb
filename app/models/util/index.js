@@ -81,6 +81,7 @@ exports.getArticleNameByPath = function(path) {
 exports.getOwnerName = function(path) {
 	let index = path.indexOf('/');
 	let ownerName = path.slice(0, index);
-
+	//let ownerName = path.match(/^(\w*)\/.*/m)[];
+	// console.log(path.match(/^\/(\w*)\/.*/m)[1])
 	return ownerName;
 }
