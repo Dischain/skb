@@ -1,19 +1,18 @@
 'use strict';
 
-const express = require('express');
-const router  = express.Router();
+const express = require('express'),
+      
+      Categories = require('../models/category.js'),
+      util = require('./rout_util.js'),
 
-const Categories = require('../models/category.js');
-
-const util = require('./rout_util.js');
-
+      router  = express.Router();
 
 // Get subcategories
 router.get(/cat/, (req, res) => {
-  let path = util.getPathToCategory(req.url),
-      responseData = {};
+  const path = util.getPathToCategory(req.url);
+  let responseData = {};
 
-  console.log('get cat by path: ' + util.getPathToCategory(req.url))
+  
   Categories.getSubcategories(path)
     .then((subcategories) => {
       responseData.subcategories = subcategories;
@@ -39,9 +38,9 @@ router.get(/cat/, (req, res) => {
 // Create category
 router.post(/cat/, (req, res) => {
 
-  let name = util.sanitizePath(req.body.name);
-  let path = util.getPathToCategory(req.url);
-  console.log('path: ' + path);
+  const name = util.sanitizePath(req.body.name),
+        path = util.getPathToCategory(req.url);
+  
   Categories.createByPath({ name, path })
     .then(() => { res.status(201); res.end(); })
     .catch((error) => {
@@ -52,10 +51,9 @@ router.post(/cat/, (req, res) => {
 
 // Update category name
 router.put(/cat/, (req, res) => {
-  let newName = util.sanitizePath(req.body.newName);
-  let path = util.getPathToCategory(req.url);
-  console.log('path: ' + path)
-  console.log('newname: ' + newName)
+  const newName = util.sanitizePath(req.body.newName),
+        path = util.getPathToCategory(req.url);
+
   Categories.renameCategory(path, newName)
     .then(() => res.status(200))
     .catch((error) => {
@@ -66,7 +64,7 @@ router.put(/cat/, (req, res) => {
 
 // Delete category recursively
 router.delete(/cat/, (req, res) => {
-  let path = util.getPathToCategory(req.url);
+  const path = util.getPathToCategory(req.url);
 
   Categories.deleteCategory(path)
     .then(() => res.status(200))
@@ -78,10 +76,9 @@ router.delete(/cat/, (req, res) => {
 
 // Attach category recursively from path to another path
 router.put(/attach/, (req, res) => {
-  let from = req.body.from;
-  let to = req.body.to;
-  console.log('start attaching from ' + from
-    + ' to ' + to)
+  const from = req.body.from,
+        to = req.body.to;
+
   Categories.attachCategoryRecursively(from, to)
     .then(() => res.status(200))
     .catch((error) => {
