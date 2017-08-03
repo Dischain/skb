@@ -29,7 +29,10 @@ router.get(/cat/, (req, res) => {
     .then((articlesNum) => {
       responseData.articlesNum = articlesNum;
     })
-    .then(subcategories => res.json(responseData))
+    .then(subcategories => { 
+      res.status(200);
+      res.json(responseData);
+    })
     .catch(error => {
       res.status(404).json({msg: 'page not found'});
     });
@@ -38,7 +41,7 @@ router.get(/cat/, (req, res) => {
 // Create category
 router.post(/cat/, (req, res) => {
 
-  const name = util.sanitizePath(req.body.name),
+  const name = util.sanitizeName(req.body.name),
         path = util.getPathToCategory(req.url);
   
   Categories.createByPath({ name, path })
@@ -51,11 +54,11 @@ router.post(/cat/, (req, res) => {
 
 // Update category name
 router.put(/cat/, (req, res) => {
-  const newName = util.sanitizePath(req.body.newName),
+  const newName = util.sanitizeName(req.body.newName),
         path = util.getPathToCategory(req.url);
 
   Categories.renameCategory(path, newName)
-    .then(() => res.status(200))
+    .then(() => { res.status(200); res.end(); })
     .catch((error) => {
       res.status(409);
       res.json({ msg: error.message });
@@ -67,7 +70,7 @@ router.delete(/cat/, (req, res) => {
   const path = util.getPathToCategory(req.url);
 
   Categories.deleteCategory(path)
-    .then(() => res.status(200))
+    .then(() => { res.status(200); res.end() })
     .catch((error) => {
       res.status(404);
       res.json({ msg: error.message });
@@ -80,7 +83,7 @@ router.put(/attach/, (req, res) => {
         to = req.body.to;
 
   Categories.attachCategoryRecursively(from, to)
-    .then(() => res.status(200))
+    .then(() => { res.status(200); res.end(); })
     .catch((error) => {
       res.status(409);
       res.json({ msg: error.message });

@@ -44,7 +44,7 @@ function trimSpaces(str) {
   return convertedString;
  }
 
- function sanitizePath(str) {
+ function sanitizeName(str) {
   let trimmed = trimSpaces(str);
   let converted = convertSpacesToDivisor(trimmed);
 
@@ -58,7 +58,15 @@ function trimSpaces(str) {
   return path;
  }
 
+function getPathToArticle(str) {
+  let path = str.slice(9);
+  if (path.lastIndexOf('/') != path.length - 1)
+    path += '/'
+  return path;
+ }
+
  module.exports = {
-  sanitizePath: sanitizePath,
-  getPathToCategory: getPathToCategory
+  sanitizeName: sanitizeName,
+  getPathToCategory: getPathToCategory,
+  getPathToArticle: getPathToArticle
  }
