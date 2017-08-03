@@ -7,7 +7,6 @@ const Categories = require('../models/category.js');
 
 const util = require('./rout_util.js');
 
-//TODO: Add status codes
 
 // Get subcategories
 router.get(/cat/, (req, res) => {
@@ -16,7 +15,6 @@ router.get(/cat/, (req, res) => {
 
   console.log('get cat by path: ' + util.getPathToCategory(req.url))
   Categories.getSubcategories(path)
-    //.then(subcategories => res.json(subcategories))
     .then((subcategories) => {
       responseData.subcategories = subcategories;
     })
@@ -24,7 +22,7 @@ router.get(/cat/, (req, res) => {
     .then((subcategoriesNum) => {
       responseData.subcategoriesNum = subcategoriesNum;
     })
-    .then(() => Categories.getArticlesAttachedNum(path) )
+    .then(() => Categories.getTotalUsersAttached(path) )
     .then((articlesAttachedNum) => {
       responseData.articlesAttachedNum = articlesAttachedNum;
     })
@@ -45,9 +43,10 @@ router.post(/cat/, (req, res) => {
   let path = util.getPathToCategory(req.url);
   console.log('path: ' + path);
   Categories.createByPath({ name, path })
-    .then(() => { res.status(200); res.end(); })
+    .then(() => { res.status(201); res.end(); })
     .catch((error) => {
-
+      res.status(409);
+      res.json({ msg: error.message });
     });
 });
 
@@ -60,6 +59,7 @@ router.put(/cat/, (req, res) => {
   Categories.renameCategory(path, newName)
     .then(() => res.status(200))
     .catch((error) => {
+      res.status(409);
       res.json({ msg: error.message });
     });
 });
@@ -71,19 +71,22 @@ router.delete(/cat/, (req, res) => {
   Categories.deleteCategory(path)
     .then(() => res.status(200))
     .catch((error) => {
-
+      res.status(404);
+      res.json({ msg: error.message });
     });
 });
 
-// Attach category from path to another path
-router.put('/cat/attach', (req, res) => {
+// Attach category recursively from path to another path
+router.put(/attach/, (req, res) => {
   let from = req.body.from;
   let to = req.body.to;
-
+  console.log('start attaching from ' + from
+    + ' to ' + to)
   Categories.attachCategoryRecursively(from, to)
-    .then(() => res.status(/**/))
+    .then(() => res.status(200))
     .catch((error) => {
-
+      res.status(409);
+      res.json({ msg: error.message });
     });
 });
 

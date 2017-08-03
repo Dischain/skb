@@ -20,7 +20,7 @@ const util = require('./util');
  * @return {Promise}
  * @public
  */
-exports.createByPath = function(catData) {
+function createByPath(catData) {
   if (catData.name.indexOf('/') != -1)
     throw new new Error('Category name can not contain "/"');
   return CategoryModel.findOne( {path: catData.path })
@@ -57,7 +57,7 @@ exports.createByPath = function(catData) {
  * @return {Promise}
  * @public
  */
-exports.deleteCategory = function(rootPath) {
+function deleteCategory(rootPath) {
   let categoryName = util.getCategoryNameByPath(rootPath);
   let parentpath = util.getCategoryParentPath(rootPath);
 
@@ -99,7 +99,7 @@ exports.deleteCategory = function(rootPath) {
  * @return {Promise}
  * @public
  */
-exports.getSubcategories = function(path) {
+function getSubcategories(path) {
   return CategoryModel.findOne({ path: path })
     .populate('_children')
     .populate('_articles')
@@ -128,7 +128,7 @@ exports.getSubcategories = function(path) {
 }
 
 // Note: you can not rename root category, `cause you can`t change username.
-exports.renameCategory = function(path, newName) {
+function renameCategory(path, newName) {
   let newPath = util.replaceCategoryNameAtPath(path, newName);
   let parentPath, oldName;
   return CategoryModel.findOne({ path: path })
@@ -154,7 +154,7 @@ exports.renameCategory = function(path, newName) {
       return parent.save();
     })
     .then(() => {
-      return exports.fixPathToChildren(path, newPath);
+      return fixPathToChildren(path, newPath);
     });
 }
 
@@ -166,16 +166,16 @@ exports.renameCategory = function(path, newName) {
  *  attachCategory('u2/Programming/dbs/redis/', 'u2/cs/db/')
  *  should create new category with path 'u2/cs/db/redis/'
  */
-exports.attachCategory = function(from, to) {
+function attachCategory(from, to) {
   let pathToReplace = util.getCategoryParentPath(from);
   let attachableCategoryName = util.getCategoryNameByPath(from);
-  return exports.createByPath({ name: attachableCategoryName, path: to })
+  return createByPath({ name: attachableCategoryName, path: to })
     .then(() => {
-      return exports.getSubcategories(from)
+      return getSubcategories(from)
         .then((subcategories) => {
           let subcategories_copy = subcategories.categories.map((category) => {
             category.path = to + attachableCategoryName + '/';
-            return exports.createByPath(category);
+            return createByPath(category);
           });
 
           let articles_copy = subcategories.articles.map((article) => {
@@ -189,11 +189,11 @@ exports.attachCategory = function(from, to) {
     });
 }
 
-exports.attachCategoryRecursively = function(from, to) {
+function attachCategoryRecursively(from, to) {
   let pathToReplace = util.getCategoryParentPath(from);
   let attachableCategoryName = util.getCategoryNameByPath(from);
 
-  return exports.createByPath({ name: attachableCategoryName, path: to })
+  return createByPath({ name: attachableCategoryName, path: to })
     .then(() => { 
       return CategoryModel.findOne({ path: from })
         .populate('_children')
@@ -205,7 +205,7 @@ exports.attachCategoryRecursively = function(from, to) {
             category._articles = []; 
             category.childrenNames = [];
             
-            return exports.attachCategoryRecursively(from + category.name + '/',
+            return attachCategoryRecursively(from + category.name + '/',
                 category.path);
           });
 
@@ -213,7 +213,7 @@ exports.attachCategoryRecursively = function(from, to) {
         })
     })
     .then(() => {
-      return exports.getSubcategories(from)
+      return getSubcategories(from)
         .then((subcategories) => {
           let articles_copy = subcategories.articles.map((article) => {
             let ownerArticlePath = article.ownerPath;
@@ -237,7 +237,7 @@ exports.attachCategoryRecursively = function(from, to) {
  *
  * @private
  */
-exports.fixPathToChildren = function(oldPath, newPath) {
+function fixPathToChildren(oldPath, newPath) {
   return CategoryModel.find({ path: { $regex: '\^' + oldPath } })
     .then((categories) => {
       let categoryPromises = categories.map((category) => {
@@ -259,7 +259,7 @@ exports.fixPathToChildren = function(oldPath, newPath) {
 /*
  * Count total subcategories at specified category
  */
-exports.getSubcategoriesNum = function(path) {
+function getSubcategoriesNum(path) {
   return CategoryModel.find({ path: { $regex: '\^' + path } })
     .then((categories) => categories.length);
 }
@@ -267,7 +267,7 @@ exports.getSubcategoriesNum = function(path) {
 /*
  * Count total articles attached at category
  */
-exports.getArticlesAttachedNum = function(path) {
+function getTotalUsersAttached(path) {
   return ArticleModel.find({ path: { $regex: '\^' + path } })
     .then((articles) => {
       return articles.reduce((initial, article) => {
@@ -279,7 +279,7 @@ exports.getArticlesAttachedNum = function(path) {
 /*
  * Count total articles at category
  */
-exports.getArticlesNum = function(path) {
+function getArticlesNum(path) {
   return ArticleModel.find({ path: { $regex: '\^' + path } })
     .then((articles) => { 
       console.log('articles.length ' + articles.length);
@@ -287,6 +287,22 @@ exports.getArticlesNum = function(path) {
     });
 }
 
-exports.findAll = function() {
+function findAll() {
   return CategoryModel.find({});
+}
+
+module.exports = {
+  createByPath: createByPath,
+  getSubcategories: getSubcategories,
+  deleteCategory: deleteCategory,
+  renameCategory: renameCategory,
+  
+  // NOTE: Probably should be deprecated
+  attachCategory: attachCategory,
+  
+  attachCategoryRecursively: attachCategoryRecursively,
+  getSubcategoriesNum: getSubcategoriesNum,
+  getTotalUsersAttached: getTotalUsersAttached,
+  getArticlesNum: getArticlesNum,
+  findAll: findAll
 }
