@@ -19,6 +19,7 @@ const UserSchema = new Schema({
 });
 
 UserSchema.pre('save', function(next) {
+  console.log('pre saving')
 	const user = this;
 
 	if (!user.avatar) {
@@ -32,6 +33,7 @@ UserSchema.pre('save', function(next) {
       if (err) return next(err);
       
       user.password = hash;
+      console.log('presave complete')
       next();
     });
   });

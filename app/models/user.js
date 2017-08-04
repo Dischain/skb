@@ -16,20 +16,24 @@ const Categories = require('./category.js');
  *    avatar: '...'
  *  }).then(() => { do_soeth(); });
  */
-exports.create = function(userData, cb) {
+function create(userData) {
+  console.log('start creating user')
+  console.log(userData)
   let user = new UserModel(userData);
   
-  let dafaultRootCategory = new CategoryModel({ 
+  var dafaultRootCategory = new CategoryModel({ 
     name: '/',
     path: user.username + '/',
     _parent: null
   })
 
   user._root = dafaultRootCategory;
-
+  console.log(user)
   return user.save()
+    //.then(() => console.log('user created'))
     .then(() => dafaultRootCategory.save() )
-    //.then(() => cb())
+    .catch(console.log)
+    //.then(() => console.log('user created'))
 }
 
 /*
@@ -38,17 +42,17 @@ exports.create = function(userData, cb) {
  * Example:
  *    findOne({ name: 'somename' }).then(() => { do_soeth(); });
  */
-exports.findOne = function(data) {
+function findOne(data) {
   return UserModel.findOne(data);
 }
 
 /*
  * Returns user entry with user data and handy statistics
  */
-exports.getUserEntry = function(data) {
+function getUserEntry(data) {
   let tempUser;
 
-  return exports.findOne(data)
+  return findOne(data)
     .populate('_root')
     .then((user) => {
       tempUser = user;
@@ -69,6 +73,22 @@ exports.getUserEntry = function(data) {
     })*/
 }
 
-exports.findAll = function() {
+function findAll() {
   return UserModel.find({});
+}
+
+function isAuthenticated(req, res, next) {
+    if(req.isAuthenticated()){
+    next();
+  }else{
+    res.redirect('/');
+  }
+}
+
+module.exports = {
+  findAll: findAll,
+  isAuthenticated: isAuthenticated,
+  getUserEntry: getUserEntry,
+  findOne: findOne,
+  create: create
 }
