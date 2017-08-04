@@ -55,13 +55,16 @@ exports.getCategoryParentPath = function(path) {
 	return parentPath;
 }
 
+// same code
 exports.getArticleParentPath = function(path) {
-	let index = path.lastIndexOf('/');
-	let articlePath = path.slice(0, index + 1);
+	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+	let index = pathWithRemovedLastSlash.lastIndexOf('/');
+	let articlePath = pathWithRemovedLastSlash.slice(0, index + 1);
 
 	return articlePath;
 }
 
+// ooops, refactor! 
 exports.getCategoryNameByPath = function(path) {
 	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
 	let index = pathWithRemovedLastSlash.lastIndexOf('/');
@@ -72,8 +75,10 @@ exports.getCategoryNameByPath = function(path) {
 }
 
 exports.getArticleNameByPath = function(path) {
-	let index = path.lastIndexOf('/');
-	let articleName = path.slice(index + 1);
+	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+	let index = pathWithRemovedLastSlash.lastIndexOf('/');
+	
+	let articleName = pathWithRemovedLastSlash.slice(index + 1);
 
 	return articleName;
 }

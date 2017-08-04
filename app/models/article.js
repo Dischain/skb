@@ -49,12 +49,15 @@ function createByPath(articleData) {
     .then(() => {
       return CategoryModel.findOne( {path: articleData.path })
         .then((parent) => {
+          console.log('parent path: ' + articleData.path)
           if (!parent) {
             console.log('no parent by path ' + articleData.path)
             throw new Error('Incorrect path');
           } else if (parent.articlesNames.indexOf(articleData.name) != -1) {
+            console.log('article with this name exists')
             throw new Error('Article with such a name already exists there');
           }
+          // how to catch error here!?
           let article = new ArticleModel({
             name: articleData.name,
             body: articleData.body,
@@ -80,9 +83,14 @@ function deleteArticle(path) {
   return CategoryModel.findOne({ path: parentPath })
     .then((parent) => {
       let index = parent.articlesNames.indexOf(articleName);
-      let filterArticles = function(articleName, i) { return i != index; };
+      let filterArticles = function(name, i) { return i != index; };
+      //let filterArticles = function(name, i) { return name != articleName; };
       
       parent.articlesNames = parent.articlesNames.filter(filterArticles);
+      console.log('article name: ' + articleName)
+      console.log('index: ' + index)
+      console.log('after filtering: ' + parent.articlesNames)
+      console.log('initial: ' + parent.articlesNames.filter(filterArticles))
       parent._articles = parent._articles.filter(filterArticles);
 
       return parent.save();

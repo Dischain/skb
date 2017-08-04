@@ -20,8 +20,9 @@ router.get(/article/, (req, res) => {
     })
 });
 
-// curl -H "Content-Type: application/json" -X POST -d '{"name": "test 1 article", "body": "some interesting body"}' 'localhost:3000/article/u2/Programming'
+// curl -H "Content-Type: application/json" -X POST -d '{"name": "test w article", "body": "some interesting body"}' 'localhost:3000/article/u2/Programming'
 // curl 'localhost:3000/cat/u2/Programming'
+// curl 'localhost:3000/article/u2/Programming/test+w+article'
 router.post(/article/, (req, res) => {
   const body = req.body.body,
         name = util.sanitizeName(req.body.name),
@@ -40,6 +41,43 @@ router.post(/article/, (req, res) => {
       res.json({ msg: error.message });
       res.end();
     });
-})
+});
+
+// curl -X DELETE 'localhost:3000/article/u2/Programming/test+w+article'
+router.delete(/article/, (req, res) => {
+  const path = util.getPathToArticle(req.url);
+
+  Articles.deleteArticle(path)
+    .then(() => { res.status(200); res.end(); })
+    .catch((error) => {
+      res.status(404);
+      res.json({ msg: error.message });
+    });
+});
+
+// curl -H "Content-Type: application/json" -X PUT -d '{"newName": "article", "newBody": "dasda body"}' 'localhost:3000/article/u2/Programming/test1+article'
+router.put(/article/, (req, res) => {
+  const path = util.getPathToArticle(req.url),
+        newName = util.sanitizeName(req.body.newName),
+        newBody = req.body.newBody;
+
+  let updataArticleDataPromises = [];
+
+  if (newName) {
+    updataArticleDataPromises.push(Articles.rename(path, newName));
+  }
+
+  if (newBody) {
+    updataArticleDataPromises.push(Articles.updateBody(path, newBody));
+  }
+
+  Promise.all(updataArticleDataPromises)
+    .then(() => { res.status(200); res.end(); })
+    .catch((error) => {
+      res.status(404);
+      res.json({ msg: error.message });
+    });
+});
+
 
 module.exports = router;
