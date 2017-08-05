@@ -3,6 +3,7 @@
 const express = require('express'),
       
       Articles = require('../models/article.js'),
+      Users = require('../models/user.js'),
       util = require('./rout_util.js'),
 
       router  = express.Router();
@@ -23,7 +24,8 @@ router.get(/article/, (req, res) => {
 // curl -H "Content-Type: application/json" -X POST -d '{"name": "test w article", "body": "some interesting body"}' 'localhost:3000/article/u2/Programming'
 // curl 'localhost:3000/cat/u2/Programming'
 // curl 'localhost:3000/article/u2/Programming/test+w+article'
-router.post(/article/, (req, res) => {
+router.post(/article/, [Users.isAuthenticated, (req, res) => {
+  console.log('starting posting article')
   const body = req.body.body,
         name = util.sanitizeName(req.body.name),
         tags = req.body.tags || [],
@@ -41,7 +43,7 @@ router.post(/article/, (req, res) => {
       res.json({ msg: error.message });
       res.end();
     });
-});
+}]);
 
 // curl -X DELETE 'localhost:3000/article/u2/Programming/test+w+article'
 router.delete(/article/, (req, res) => {

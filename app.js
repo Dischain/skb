@@ -13,6 +13,7 @@ let port = 3000; //TEST
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', categoryRoutTest);
 app.use('/', articleRout);
@@ -24,3 +25,10 @@ app.use(function(req, res, next) {
 
 app.listen(port, () => console.log('server listening'));
 //module.exports = app;
+
+// register
+// curl -H "Content-Type: application/json" -X POST -d '{"username": "dischain1", "password": "sanoman11", "email": "sano@yandex.ru"}' 'localhost:3000/register'
+// login
+// curl -H "Content-Type: application/json" -X POST -d '{"password": "sanoman11", "username": "dischain0"}' 'localhost:3000/login'
+// create article
+// curl -H "Content-Type: application/json" -X POST -d '{"name": "test d article", "body": "some interesting body"}' 'localhost:3000/article/dischain0/'

@@ -17,14 +17,17 @@ router.get('/:username', (req, res) => {
 });
 
 // Login
+//curl -H "Content-Type: application/json" -X POST -d '{"password": "sanoman11", "username": "dischain0"}' 'localhost:3000/login'
 router.post('/login', passport.authenticate('local', { 
   successRedirect: '/', 
-  failureRedirect: '/login',
-  failureFlash: true
+  failureRedirect: '/login'
+  //failureFlash: true
 }));
 
 // Register via username and password
-router.post('/register', function(req, res, next) {
+// curl -H "Content-Type: application/json" -X POST -d '{"username": "dischain0", "password": "sanoman11", "email": "sano@yandex.ru"}' 'localhost:3000/register'
+// curl 'localhost:3000/dischain1/'
+router.post('/register', function(req, res) {
 
   var credentials = {
     'username': req.body.username, 
@@ -59,12 +62,14 @@ router.post('/register', function(req, res, next) {
 });
 
 // Logout
-router.get('/logout', function(req, res, next) {
+router.get('/logout', function(req, res) {
+  console.log('logout')
   req.logout();
 
   req.session = null;
 
   res.redirect('/');
+  //res.end();
 });
 
 module.exports = router;
