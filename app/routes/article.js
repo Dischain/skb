@@ -4,7 +4,8 @@ const express = require('express'),
       
       Articles = require('../models/article.js'),
       Users = require('../models/user.js'),
-      util = require('./rout_util.js'),
+      util = require('./rout_util.js'),      
+      cache = require('../cache'),
 
       router  = express.Router();
 
@@ -13,12 +14,41 @@ router.get(/article/, (req, res) => {
   console.log('ggg')
   const path = util.getPathToArticle(req.url);
 
-  Articles.getArticle(path)
+  cache.getValue(path)
+    .then((val) => {
+      if (val) {
+        console.log('contains')
+        res.status(200);
+        res.json({ article: article});
+        res.end();
+      } else {
+        Articles.getArticle(path)
+          .then((article) => {
+            if (article) {
+              
+              cache.storeValue(path, article);
+              res.status(200);
+              res.json({ article: article});
+              res.end();
+            } else {
+              res.status(404);              
+              res.end();
+            }
+          })
+          .cath((err) => {
+            res.status(409);
+            res.json({ msg: error.message });
+            res.end();
+          });
+      }
+    })
+
+  /*Articles.getArticle(path)
     .then((article) => {
       res.status(200);
       res.json({ article: article});
       res.end();
-    })
+    })*/
 });
 
 // curl -H "Content-Type: application/json" -X POST -d '{"name": "test w article", "body": "some interesting body"}' 'localhost:3000/article/u2/Programming'

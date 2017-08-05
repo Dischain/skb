@@ -130,7 +130,7 @@ function updateBody(path, body) {
     });
 }
 
-function removeTag(path, removebleTags) {
+function removeTags(path, removebleTags) {
   return ArticleModel.findOne({ path: path })
     .then((article) => {
       article.tags = article.tags.filter((tag) => {
@@ -141,7 +141,7 @@ function removeTag(path, removebleTags) {
     });
 }
 
-function addTag(path, newTags) {
+function addTags(path, newTags) {
   return ArticleModel.findOne({ path: path })
     .then((article) => {
       article.tags = article.tags.concat(newTags);
@@ -183,8 +183,8 @@ module.exports = {
   rename: rename,
   deleteArticle: deleteArticle,
   updateBody: updateBody,
-  removeTag: removeTag,
-  addTag: addTag,
+  removeTags: removeTags,
+  addTags: addTags,
   attachArticle: attachArticle,
   updateAttachedArticle: updateAttachedArticle,
   findAll: findAll

@@ -10,6 +10,8 @@ const userRoutTest = require('./app/routes/users.js'),
 
 let port = 3000; //TEST
 
+process.on('error', console.log)
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
