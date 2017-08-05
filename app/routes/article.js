@@ -61,7 +61,9 @@ router.delete(/article/, (req, res) => {
 router.put(/article/, (req, res) => {
   const path = util.getPathToArticle(req.url),
         newName = util.sanitizeName(req.body.newName),
-        newBody = req.body.newBody;
+        newBody = req.body.newBody,
+        newTags = req.body.newTags,
+        removableTags = req.body.removableTags;
 
   let updataArticleDataPromises = [];
 
@@ -73,6 +75,14 @@ router.put(/article/, (req, res) => {
     updataArticleDataPromises.push(Articles.updateBody(path, newBody));
   }
 
+  if (newTags) {
+    updataArticleDataPromises.push(Articles.addTags(path, newTags));
+  }
+
+  if (removableTags) {
+    updataArticleDataPromises.push(Articles.removeTags(path, removableTags));
+  }
+
   Promise.all(updataArticleDataPromises)
     .then(() => { res.status(200); res.end(); })
     .catch((error) => {
@@ -81,5 +91,28 @@ router.put(/article/, (req, res) => {
     });
 });
 
+router.put(/attach_article/, (req, res) => {
+  const from = req.body.from,
+        to = req.body.to;
+
+  Articles.attachArticle(from, to)
+    .then(() => { res.status(200); res.end(); })
+    .catch((error) => {
+      res.status(409);
+      res.json({ msg: error.message });
+    });
+});
+
+router.put(/attach_category/, (req, res) => {
+  const from = req.body.from,
+        to = req.body.to;
+
+  Categories.attachCategoryRecursively(from, to)
+    .then(() => { res.status(200); res.end(); })
+    .catch((error) => {
+      res.status(409);
+      res.json({ msg: error.message });
+    });
+});
 
 module.exports = router;

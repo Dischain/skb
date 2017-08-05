@@ -130,21 +130,21 @@ function updateBody(path, body) {
     });
 }
 
-function removeTag(path, removebleTag) {
+function removeTag(path, removebleTags) {
   return ArticleModel.findOne({ path: path })
     .then((article) => {
       article.tags = article.tags.filter((tag) => {
-        return tag != removebleTag;
+        return !removebleTags.contains(tag);
       });
 
       return article.save();
     });
 }
 
-function addTag(path, newTag) {
+function addTag(path, newTags) {
   return ArticleModel.findOne({ path: path })
     .then((article) => {
-      article.tags.push(newTag);
+      article.tags = article.tags.concat(newTags);
 
       return article.save();
     })

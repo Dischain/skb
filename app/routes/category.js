@@ -78,7 +78,7 @@ router.delete(/cat/, (req, res) => {
 });
 
 // Attach category recursively from path to another path
-router.put(/attach/, (req, res) => {
+router.put(/attach_category/, (req, res) => {
   const from = req.body.from,
         to = req.body.to;
 
