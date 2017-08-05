@@ -2,11 +2,11 @@
 const config = require('./config.json');
 
 var init = function() {
-	if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production') {
 
-	} else {
-		return config;
-	}
+  } else {
+    return config;
+  }
 }
 
 module.exports = init();
