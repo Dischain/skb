@@ -11,13 +11,11 @@ const express = require('express'),
 
 
 router.get(/article/, (req, res) => {
-  console.log('ggg')
   const path = util.getPathToArticle(req.url);
 
   cache.getValue(path)
     .then((val) => {
       if (val) {
-        console.log('contains')
         res.status(200);
         res.json({ article: article});
         res.end();
@@ -55,7 +53,6 @@ router.get(/article/, (req, res) => {
 // curl 'localhost:3000/cat/u2/Programming'
 // curl 'localhost:3000/article/u2/Programming/test+w+article'
 router.post(/article/, [Users.isAuthenticated, (req, res) => {
-  console.log('starting posting article')
   const body = req.body.body,
         name = util.sanitizeName(req.body.name),
         tags = req.body.tags || [],
@@ -64,7 +61,6 @@ router.post(/article/, [Users.isAuthenticated, (req, res) => {
 
   Articles.createByPath({name, body, path, tags})
     .then(() => {
-      console.log('article posted')
       res.status(201);
       res.end();
     })

@@ -10,7 +10,9 @@ const Users = require('../models/user.js');
 //TODO: handle auth
 router.get('/:username', (req, res) => {
   Users.getUserEntry({ username: req.params.username })
-    .then((user) => { console.log(user); res.json(user) })
+    .then((user) => { 
+      res.json(user) 
+    })
     .catch((err) => {
       res.status(412).json({msg: error.message});
     });
@@ -21,7 +23,6 @@ router.get('/:username', (req, res) => {
 router.post('/login', passport.authenticate('local', { 
   successRedirect: '/', 
   failureRedirect: '/login'
-  //failureFlash: true
 }));
 
 // Register via username and password
@@ -34,12 +35,10 @@ router.post('/register', function(req, res) {
     'password': req.body.password,
     'email': req.body.email
     };
-  console.log(credentials)
-  // Валидация формы должна быть на клиенте
+  // Form validation runs on client
   // Check if the username already exists for non-social account
   Users.findOne({ username: { $regex: new RegExp('^' + credentials.username + '$', 'i')}, socialId: null })
   .then((user) => {
-    console.log('user: ' + user)
     if(user){
       res.send({ message: 'Username already exists' });
       res.redirect('/register');
@@ -47,8 +46,6 @@ router.post('/register', function(req, res) {
     } else {
       Users.create(credentials)
       then(() => {
-        console.log('user created')
-        //req.flash({ message: 'Your account has been created. Please log in' });
         res.redirect('/');
         res.end();
       })
@@ -63,13 +60,11 @@ router.post('/register', function(req, res) {
 
 // Logout
 router.get('/logout', function(req, res) {
-  console.log('logout')
   req.logout();
 
   req.session = null;
 
   res.redirect('/');
-  //res.end();
 });
 
 module.exports = router;
