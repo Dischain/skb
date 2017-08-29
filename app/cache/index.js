@@ -9,28 +9,21 @@ const expiration = config.cache.expiration,
 
 let cache = redis.createClient(port, host);
 
-//Добавить логгирование
 cache.on('error', (err) => console.log(err));
 
 function storeValue(key, value) {
-  console.log('storing val: ' + key);
+
   return getValue((result) => {
     if (!result) {
-      // разве не асинхронная?
-      // setex(key, value);
       return setex(key, value);
     } else {
-      // cache.del(key);
-      // cache.setex(key, expiration, value)
       return del(key);
     }
-    // если cache.setex все таки синхронная
-    //return Promise.resolve();
-  })
+  });
 }
 
 function getValue(key) {
-  console.log('getting val: ' + key);
+
   return new Promise((resolve, reject) => {
     cache.get(key, (err, result) => {
       if (err) {

@@ -39,7 +39,6 @@ function createByPath(catData) {
 
         _parent: parent._id,
 
-        //childrenNames: catData.childrenNames,
         articleNames: catData.articleNames,       
 
         domainKnowledge: catData.domainKnowledge
@@ -282,7 +281,6 @@ function getTotalUsersAttached(path) {
 function getArticlesNum(path) {
   return ArticleModel.find({ path: { $regex: '\^' + path } })
     .then((articles) => { 
-      console.log('articles.length ' + articles.length);
       return articles.length;
     });
 }

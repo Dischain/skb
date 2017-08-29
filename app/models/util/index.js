@@ -22,71 +22,69 @@ exports.deleteAllArticles = function() {
  * Replaces the current name of category in the path to it with new name
  *
  * Example:
- *	if path to category is 'path/category/oldname/'
- *	end new name of category is 'some_new_name'
- *	then it returns 'path/category/some_new_name/'
+ *  if path to category is 'path/category/oldname/'
+ *  end new name of category is 'some_new_name'
+ *  then it returns 'path/category/some_new_name/'
  */
 exports.replaceCategoryNameAtPath = function(path, name) {
-	let newPath = exports.getCategoryParentPath(path) + name + '/';
+  let newPath = exports.getCategoryParentPath(path) + name + '/';
 
-	return newPath;
+  return newPath;
 }
 
 exports.replaceArticleNameAtPath = function(path, name) {
-	console.log('exports.getArticleParentPath(path): ' + 
-		exports.getArticleParentPath(path));
-	let newPath = exports.getArticleParentPath(path) + name;
-	return newPath;
+  let newPath = exports.getArticleParentPath(path) + name;
+  return newPath;
 }
 
 /*
  * Returns path which should be replaced in oreder to remove category
  *
  * Example:
- *	path = 'user1/programming/databases/mongodb/'
+ *  path = 'user1/programming/databases/mongodb/'
  *  getPathToReplace(path) // -> outputs 'user1/programming/databases/''
  */
 exports.getCategoryParentPath = function(path) {
-	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
-	let index = pathWithRemovedLastSlash.lastIndexOf('/');
+  let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+  let index = pathWithRemovedLastSlash.lastIndexOf('/');
 
-	let parentPath = pathWithRemovedLastSlash.slice(0, index + 1);
+  let parentPath = pathWithRemovedLastSlash.slice(0, index + 1);
 
-	return parentPath;
+  return parentPath;
 }
 
 // same code
 exports.getArticleParentPath = function(path) {
-	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
-	let index = pathWithRemovedLastSlash.lastIndexOf('/');
-	let articlePath = pathWithRemovedLastSlash.slice(0, index + 1);
+  let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+  let index = pathWithRemovedLastSlash.lastIndexOf('/');
+  let articlePath = pathWithRemovedLastSlash.slice(0, index + 1);
 
-	return articlePath;
+  return articlePath;
 }
 
 // ooops, refactor! 
 exports.getCategoryNameByPath = function(path) {
-	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
-	let index = pathWithRemovedLastSlash.lastIndexOf('/');
+  let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+  let index = pathWithRemovedLastSlash.lastIndexOf('/');
 
-	let categoryName = pathWithRemovedLastSlash.slice(index + 1);
+  let categoryName = pathWithRemovedLastSlash.slice(index + 1);
 
-	return categoryName;
+  return categoryName;
 }
 
 exports.getArticleNameByPath = function(path) {
-	let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
-	let index = pathWithRemovedLastSlash.lastIndexOf('/');
-	
-	let articleName = pathWithRemovedLastSlash.slice(index + 1);
+  let pathWithRemovedLastSlash = path.slice(0, path.length - 1);
+  let index = pathWithRemovedLastSlash.lastIndexOf('/');
+  
+  let articleName = pathWithRemovedLastSlash.slice(index + 1);
 
-	return articleName;
+  return articleName;
 }
 
 exports.getOwnerName = function(path) {
-	let index = path.indexOf('/');
-	let ownerName = path.slice(0, index);
-	//let ownerName = path.match(/^(\w*)\/.*/m)[];
-	// console.log(path.match(/^\/(\w*)\/.*/m)[1])
-	return ownerName;
+  let index = path.indexOf('/');
+  let ownerName = path.slice(0, index);
+  //let ownerName = path.match(/^(\w*)\/.*/m)[];
+  // console.log(path.match(/^\/(\w*)\/.*/m)[1])
+  return ownerName;
 }

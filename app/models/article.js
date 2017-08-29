@@ -9,12 +9,11 @@ const categories = require('./category.js');
 const util = require('./util');
 
 function getArticle(path) {
-  console.log('getting article for: ' + path)
+
   return ArticleModel.findOne({ path: path})
     .then((article) => {
-      console.log(article);
       return article;
-    })
+    });
 }
 
 /*
@@ -34,30 +33,25 @@ function getArticle(path) {
  * @public
  */
 function createByPath(articleData) {
-  console.log(articleData)
   let ownerName = util.getOwnerName(articleData.path);
-  console.log('ownerName: ' + ownerName);
+
   return UserModel.findOne({ username: ownerName })
     .then((user) => {
       if(!articleData._createdBy) {
         articleData._createdBy = user._id;
       }
-      console.log('owner: ');
-      console.log(user);
+
       return Promise.resolve();
     })
     .then(() => {
       return CategoryModel.findOne( {path: articleData.path })
         .then((parent) => {
-          console.log('parent path: ' + articleData.path)
           if (!parent) {
-            console.log('no parent by path ' + articleData.path)
             throw new Error('Incorrect path');
           } else if (parent.articlesNames.indexOf(articleData.name) != -1) {
-            console.log('article with this name exists')
             throw new Error('Article with such a name already exists there');
           }
-          // how to catch error here!?
+
           let article = new ArticleModel({
             name: articleData.name,
             body: articleData.body,
@@ -69,8 +63,7 @@ function createByPath(articleData) {
           });
           parent._articles.push(article);
           parent.articlesNames.push(article.name);
-          console.log('article saving at db')
-          console.log(article);
+
           return article.save().then(() => parent.save());
         });
     });
@@ -84,18 +77,13 @@ function deleteArticle(path) {
     .then((parent) => {
       let index = parent.articlesNames.indexOf(articleName);
       let filterArticles = function(name, i) { return i != index; };
-      //let filterArticles = function(name, i) { return name != articleName; };
       
       parent.articlesNames = parent.articlesNames.filter(filterArticles);
-      console.log('article name: ' + articleName)
-      console.log('index: ' + index)
-      console.log('after filtering: ' + parent.articlesNames)
-      console.log('initial: ' + parent.articlesNames.filter(filterArticles))
       parent._articles = parent._articles.filter(filterArticles);
 
       return parent.save();
     })
-    .then(() => ArticleModel.remove({ path: path }) )
+    .then(() => ArticleModel.remove({ path: path }) );
 }
 
 function rename(path, newName) {

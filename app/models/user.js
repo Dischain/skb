@@ -17,8 +17,6 @@ const Categories = require('./category.js');
  *  }).then(() => { do_soeth(); });
  */
 function create(userData) {
-  console.log('start creating user')
-  console.log(userData)
   let user = new UserModel(userData);
   
   var dafaultRootCategory = new CategoryModel({ 
@@ -28,12 +26,9 @@ function create(userData) {
   })
 
   user._root = dafaultRootCategory;
-  console.log(user)
   return user.save()
-    //.then(() => console.log('user created'))
     .then(() => dafaultRootCategory.save() )
     .catch(console.log)
-    //.then(() => console.log('user created'))
 }
 
 /*
@@ -78,7 +73,6 @@ function findAll() {
 }
 
 function isAuthenticated(req, res, next) {
-    console.log('is authenticated: ' + req.isAuthenticated())
     if(req.isAuthenticated()){
     next();
   }else{
